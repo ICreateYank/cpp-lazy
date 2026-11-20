@@ -86,15 +86,8 @@ if (CPP_LAZY_USE_MODULES)
 	target_compile_features(cpp-lazy PRIVATE cxx_std_20)
 endif()
 
-# Link lib stacktrace if debug assertions are enabled, on Linux with C++23 or later
-set(IS_CXX_23 $<VERSION_GREATER_EQUAL:${CMAKE_CXX_STANDARD},23>)
-set(IS_GNU_LIKE_COMPILER $<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>)
-set(LZ_LINK_LIBBACKTRACE_CONDITION
-    $<AND:$<BOOL:${CPP_LAZY_DEBUG_ASSERTIONS}>,${IS_GNU_LIKE_COMPILER},${IS_CXX_23}>
-)
 target_link_libraries(cpp-lazy ${CPP_LAZY_LINK_VISIBILITY}
 	$<$<NOT:$<BOOL:${CPP_LAZY_USE_STANDALONE}>>:fmt::fmt>
-	$<${LZ_LINK_LIBBACKTRACE_CONDITION}:stdc++_libbacktrace>
 )
 target_compile_definitions(cpp-lazy ${CPP_LAZY_COMPILE_DEFINITIONS_VISIBLITY}
 	$<$<BOOL:${CPP_LAZY_USE_STANDALONE}>:LZ_STANDALONE>

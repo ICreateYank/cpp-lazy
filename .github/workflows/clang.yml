@@ -1,6 +1,5 @@
 env:
   CTEST_OUTPUT_ON_FAILURE: 1
-  LIBCXX_STANDARDS_JSON: '["20","23"]'
 
 on:
   workflow_call:
@@ -12,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: [17]
+        version: [18]
         standard: [11, 14, 17, 20, 23]
 
     runs-on: ubuntu-latest
@@ -24,48 +23,39 @@ jobs:
       - name: Install Ninja
         uses: seanmiddleditch/gha-setup-ninja@master
 
-      - name: Install Clang ${{ matrix.version }}
-        run: sudo apt-get install -y clang-${{ matrix.version }}
-      
       - name: Install libc++ Clang ${{ matrix.version }}
-        if: contains(fromJson(env.LIBCXX_STANDARDS_JSON), matrix.standard)
-        run: sudo apt-get install -y libc++-${{ matrix.version }}-dev libc++abi-${{ matrix.version }}-dev
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang-${{ matrix.version }} \
+            clang-tools-${{ matrix.version }} \
+            llvm-${{ matrix.version }} \
+            lld-${{ matrix.version }} \
+            libc++-${{ matrix.version }}-dev \
+            libc++abi-${{ matrix.version }}-dev \
+            libunwind-dev
 
       - name: Configure (install)
         run: |
-          sudo apt-get update && sudo apt-get install -y jq
-          STDS=$(echo '${{ env.LIBCXX_STANDARDS_JSON }}' | jq -r '.[]' | xargs)
-          if echo "$STDS" | grep -wq "${{ matrix.standard }}"; then
-            CXX_FLAGS='-stdlib=libc++'
-          else
-            CXX_FLAGS=''
-          fi
           cmake -S . -B build/install -G Ninja \
             -D CMAKE_CXX_STANDARD:STRING=${{ matrix.standard }} \
-            -D CMAKE_CXX_FLAGS=$CXX_FLAGS \
+            -D CMAKE_CXX_FLAGS=-stdlib=libc++ \
             -D CPP_LAZY_INSTALL:BOOL=ON \
             -D CMAKE_BUILD_TYPE:STRING=Release \
             -D CMAKE_INSTALL_PREFIX=build/prefix \
             -D CMAKE_CXX_COMPILER=clang++-${{ matrix.version }}
 
       - name: Build (install)
-        run: cmake --build build/install -j $(nproc)
+        run: cmake --build build/install
 
       - name: Install
         run: cmake --install build/install
 
       - name: Configure tests
         run: |
-          sudo apt-get update && sudo apt-get install -y jq
-          STDS=$(echo '${{ env.LIBCXX_STANDARDS_JSON }}' | jq -r '.[]' | xargs)
-          if echo "$STDS" | grep -wq "${{ matrix.standard }}"; then
-            CXX_FLAGS='-stdlib=libc++'
-          else
-            CXX_FLAGS=''
-          fi
           cmake -S tests -B build/tests -G Ninja \
             -D CMAKE_BUILD_TYPE:STRING=Release \
-            -D "CMAKE_CXX_FLAGS=$CXX_FLAGS" \
+            -D "CMAKE_CXX_FLAGS=-stdlib=libc++" \
             -D TEST_INSTALLED_VERSION:BOOL=YES \
             -D CMAKE_CXX_COMPILER=clang++-${{ matrix.version }} \
             -D CMAKE_INSTALL_PREFIX=build/prefix \
