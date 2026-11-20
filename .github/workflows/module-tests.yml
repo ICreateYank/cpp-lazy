@@ -14,12 +14,9 @@ jobs:
       
       - name: Add LLVM apt repo and install Clang 18
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget lsb-release gnupg
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 18
-          clang++-18 --version
+            sudo apt-get update
+            sudo apt-get install -y clang-18 llvm-18 lld-18
+            clang++-18 --version
 
       - name: Configure module tests
         run: cmake -S tests/module_tests -B tests/module_tests/build -G Ninja
@@ -46,12 +43,9 @@ jobs:
       
       - name: Add LLVM apt repo and install Clang 18
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget lsb-release gnupg
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 18
-          clang++-18 --version
+            sudo apt-get update
+            sudo apt-get install -y clang-18 llvm-18 lld-18
+            clang++-18 --version
       
       - name: Configure cpp-lazy
         run: cmake -S . -B build -G Ninja
