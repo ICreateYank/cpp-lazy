@@ -25,8 +25,15 @@ jobs:
 
       - name: Install libc++ Clang ${{ matrix.version }}
         run: |
-          sudo apt-get install -y clang-${{ matrix.version }} clang-tools-${{ matrix.version }} llvm-${{ matrix.version }} \
-            lld-${{ matrix.version }} libc++-${{ matrix.version }}-dev libc++abi-${{ matrix.version }}-dev
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang-${{ matrix.version }} \
+            clang-tools-${{ matrix.version }} \
+            llvm-${{ matrix.version }} \
+            lld-${{ matrix.version }} \
+            libc++-${{ matrix.version }}-dev \
+            libc++abi-${{ matrix.version }}-dev \
+            libunwind-dev
 
       - name: Configure (install)
         run: |
