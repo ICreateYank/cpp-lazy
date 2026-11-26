@@ -101,7 +101,7 @@ public:
     }
 
     LZ_NODISCARD LZ_CONSTEXPR_CXX_14 sentinel_t<Iterable> end() const {
-        return _iterable_ref_ptr == nullptr ? iter_t<Iterable>{} : detail::end(*_iterable_ref_ptr);
+        return _iterable_ref_ptr == nullptr ? sentinel_t<Iterable>{} : detail::end(*_iterable_ref_ptr);
     }
 #ifdef _MSC_VER
 #pragma warning(pop)
